@@ -7,6 +7,9 @@ import android.security.keystore.KeyInfo
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
 import android.util.Log
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+import androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import com.crashlytics.android.Crashlytics
@@ -18,7 +21,6 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
-import moe.feng.support.biometricprompt.BiometricPromptCompat
 import one.mixin.android.Constants
 import one.mixin.android.Constants.BIOMETRICS_ALIAS
 import one.mixin.android.R
@@ -35,13 +37,16 @@ object BiometricUtil {
 
     const val CRASHLYTICS_BIOMETRIC = "biometric"
 
-    private fun isSupport(ctx: Context): Boolean {
-        return BiometricPromptCompat.isHardwareDetected(ctx) && isKeyguardSecure(ctx) && isSecureHardware() && !RootUtil.isDeviceRooted
-    }
+    private fun isSupport(ctx: Context): Boolean =
+        BiometricManager.from(ctx).canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS &&
+            isKeyguardSecure(ctx) &&
+            isSecureHardware() &&
+            !RootUtil.isDeviceRooted
 
     fun isSupportWithErrorInfo(ctx: Context): Pair<Boolean, String?> {
-        if (!BiometricPromptCompat.isHardwareDetected(ctx)) {
-            return Pair(false, "Low device software version")
+        val canAuthResult = BiometricManager.from(ctx).canAuthenticate()
+        if (canAuthResult != BiometricManager.BIOMETRIC_SUCCESS) {
+            return Pair(false, getAuthErrorMsg(canAuthResult))
         }
         if (!isKeyguardSecure(ctx)) {
             return Pair(false, "The PIN, pattern or password is NOT set or a SIM card is unlocked")
@@ -113,6 +118,14 @@ object BiometricUtil {
         val biometricInterval = ctx.defaultSharedPreferences.getLong(Constants.BIOMETRIC_INTERVAL, Constants.BIOMETRIC_INTERVAL_DEFAULT)
         val currTime = System.currentTimeMillis()
         return openBiometrics && currTime - biometricPinCheck <= biometricInterval
+    }
+
+    private fun getAuthErrorMsg(code: Int): String {
+        return when (code) {
+            BIOMETRIC_ERROR_NO_HARDWARE -> "There is no biometric hardware."
+            BIOMETRIC_ERROR_NONE_ENROLLED -> "The user does not have any biometrics enrolled."
+            else -> "The hardware is unavailable. Try again later."
+        }
     }
 
     private fun isKeyguardSecure(ctx: Context): Boolean {
