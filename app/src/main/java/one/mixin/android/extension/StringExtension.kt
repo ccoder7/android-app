@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.collections.set
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.min
 
 fun String.generateQRCode(size: Int): Bitmap? {
@@ -59,49 +58,41 @@ fun String.generateQRCode(size: Int): Bitmap? {
         color = Color.BLACK
     }
 
+    val patternSize = 7
+    val padding = 18.dp.toFloat()
     val input = result.matrix
     val inputWidth = input.width
     val inputHeight = input.height
-    val qrWidth: Int = inputWidth
-    val qrHeight: Int = inputHeight
-    val outputWidth = max(size, qrWidth)
-    val outputHeight = max(size, qrHeight)
-    val multiple: Int = min(outputWidth / qrWidth, outputHeight / qrHeight)
-    val leftPadding: Int = (outputWidth - inputWidth * multiple) / 2
-    val topPadding: Int = (outputHeight - inputHeight * multiple) / 2
-    val patternSize = 7
-    val circleFactor = 1f / 2f
-    val circleSize = (multiple * circleFactor)
-    var inputY = 0
-    var outputY: Int = topPadding
-    while (inputY < inputHeight) {
-        var inputX = 0
-        var outputX: Int = leftPadding
-        while (inputX < inputWidth) {
-            if (input[inputX, inputY].toInt() == 1) {
-                if (!(inputX <= patternSize && inputY <= patternSize || inputX >= inputWidth - patternSize && inputY <= patternSize || inputX <= patternSize && inputY >= inputHeight - patternSize)
-                ) {
-                    canvas.drawCircle(outputX.toFloat(), outputY.toFloat(), circleSize, paint)
+    val itemSize = (size - padding * 2) / inputWidth
+    val circleRadius = itemSize / 2
+    for (y in 0 until inputHeight) {
+        for (x in 0 until inputWidth) {
+            if (input[x, y].toInt() == 1) {
+                if (x in 0..patternSize && (y in 0..patternSize || y in inputHeight - 1 - patternSize until inputHeight)) {
+                    continue
+                } else if (x in inputWidth - 1 - patternSize until inputWidth && y in 0..patternSize) {
+                    continue
                 }
+                canvas.drawCircle(
+                    (circleRadius + itemSize * x) + padding,
+                    (circleRadius + itemSize * y) + padding,
+                    circleRadius,
+                    paint
+                )
             }
-            inputX++
-            outputX += multiple
         }
-        inputY++
-        outputY += multiple
     }
 
-    val circleDiameter = multiple * patternSize
-
-    drawRoundRect(canvas, leftPadding.toFloat(), topPadding.toFloat(), circleDiameter.toFloat(), paint)
-    drawRoundRect(canvas, (leftPadding + (inputWidth - patternSize) * multiple).toFloat(), topPadding.toFloat(), circleDiameter.toFloat(), paint)
-    drawRoundRect(canvas, leftPadding.toFloat(), (topPadding + (inputHeight - patternSize) * multiple).toFloat(), circleDiameter.toFloat(), paint)
+    val strokeWidth = itemSize
+    paint.strokeWidth = strokeWidth
+    drawRoundRect(canvas, padding + strokeWidth / 2, padding + itemSize / 2, (itemSize * patternSize - strokeWidth), paint)
+    drawRoundRect(canvas, size - padding - (itemSize * patternSize - strokeWidth), padding + strokeWidth / 2, (itemSize * patternSize - strokeWidth), paint)
+    drawRoundRect(canvas, padding + strokeWidth / 2, size - padding - (itemSize * patternSize - itemSize), (itemSize * patternSize - strokeWidth), paint)
     return bitmap
 }
 
 private fun drawRoundRect(canvas: Canvas, left: Float, top: Float, size: Float, paint: Paint) {
     paint.style = Paint.Style.STROKE
-    paint.strokeWidth = size / 10
     canvas.drawRoundRect(RectF(left, top, left + size, top + size), size / 4, size / 4, paint)
     paint.style = Paint.Style.FILL
     canvas.drawRect(RectF(left + size * 0.3f, top + size * 0.3f, left + size * 0.7f, top + size * 0.7f), paint)
