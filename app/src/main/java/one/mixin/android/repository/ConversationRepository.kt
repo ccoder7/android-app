@@ -13,6 +13,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import one.mixin.android.api.MixinResponse
 import one.mixin.android.api.request.ConversationCircleRequest
+import one.mixin.android.api.request.ConversationRequest
+import one.mixin.android.api.response.ConversationResponse
 import one.mixin.android.api.service.ConversationService
 import one.mixin.android.api.service.UserService
 import one.mixin.android.db.CircleConversationDao
@@ -191,11 +193,11 @@ internal constructor(
     fun getGroupParticipantsLiveData(conversationId: String) =
         participantDao.getGroupParticipantsLiveData(conversationId)
 
-    suspend fun updateMediaStatus(status: String, messageId: String) =
+    suspend fun updateMediaStatusSuspend(status: String, messageId: String) =
         messageDao.updateMediaStatusSuspend(status, messageId)
 
-    fun deleteMessage(id: String, mediaUrl: String? = null) {
-        if (!mediaUrl.isNullOrBlank()) {
+    fun deleteMessage(id: String, mediaUrl: String? = null, forceDelete: Boolean = true) {
+        if (!mediaUrl.isNullOrBlank() && forceDelete) {
             jobManager.addJobInBackground(AttachmentDeleteJob(mediaUrl))
         }
         appDatabase.deleteMessage(id)
@@ -248,8 +250,8 @@ internal constructor(
     fun getLimitParticipants(conversationId: String, limit: Int) =
         participantDao.getLimitParticipants(conversationId, limit)
 
-    fun findParticipantByIds(conversationId: String, userId: String) =
-        participantDao.findParticipantByIds(conversationId, userId)
+    fun findParticipantById(conversationId: String, userId: String) =
+        participantDao.findParticipantById(conversationId, userId)
 
     fun getParticipantsCount(conversationId: String) =
         participantDao.getParticipantsCount(conversationId)
@@ -368,4 +370,10 @@ internal constructor(
     fun deleteMediaMessageByConversationAndCategory(conversationId: String, signalCategory: String, plainCategory: String) {
         messageDao.deleteMediaMessageByConversationAndCategory(conversationId, signalCategory, plainCategory)
     }
+
+    suspend fun muteSuspend(id: String, request: ConversationRequest): MixinResponse<ConversationResponse> = conversationService.muteSuspend(id, request)
+
+    fun updateGroupMuteUntil(conversationId: String, muteUntil: String) = conversationDao.updateGroupMuteUntil(conversationId, muteUntil)
+
+    fun updateMediaStatus(status: String, id: String) = messageDao.updateMediaStatus(status, id)
 }

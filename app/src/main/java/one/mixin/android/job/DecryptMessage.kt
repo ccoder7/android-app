@@ -100,8 +100,8 @@ import one.mixin.android.websocket.createPlainJsonParam
 import one.mixin.android.websocket.createSyncSignalKeys
 import one.mixin.android.websocket.createSyncSignalKeysParam
 import one.mixin.android.websocket.invalidData
+import org.threeten.bp.ZonedDateTime
 import org.whispersystems.libsignal.DecryptionCallback
-import org.whispersystems.libsignal.DuplicateMessageException
 import org.whispersystems.libsignal.NoSessionException
 import org.whispersystems.libsignal.SignalProtocolAddress
 import timber.log.Timber
@@ -293,27 +293,7 @@ class DecryptMessage : Injector() {
                     jobManager.addJobInBackground(SendProcessSignalKeyJob(data, ProcessSignalKeyAction.RESEND_KEY))
                 }
             } else if (plainData.action == PlainDataAction.RESEND_MESSAGES.name) {
-                plainData.messages?.let {
-                    for (id in it) {
-                        val resendMessage = resendMessageDao.findResendMessage(data.userId, data.sessionId, id)
-                        if (resendMessage != null) {
-                            continue
-                        }
-                        val needResendMessage = messageDao.findMessageById(id)
-                        if (needResendMessage != null && needResendMessage.category != MessageCategory.MESSAGE_RECALL.name) {
-                            needResendMessage.id = UUID.randomUUID().toString()
-                            jobManager.addJobInBackground(
-                                SendMessageJob(
-                                    needResendMessage,
-                                    ResendData(data.userId, id, data.sessionId), true, messagePriority = PRIORITY_SEND_ATTACHMENT_MESSAGE
-                                )
-                            )
-                            resendMessageDao.insert(ResendSessionMessage(id, data.userId, data.sessionId, 1, nowInUtc()))
-                        } else {
-                            resendMessageDao.insert(ResendSessionMessage(id, data.userId, data.sessionId, 0, nowInUtc()))
-                        }
-                    }
-                }
+                processResendMessage(data, plainData)
             } else if (plainData.action == PlainDataAction.NO_KEY.name) {
                 ratchetSenderKeyDao.delete(data.conversationId, SignalProtocolAddress(data.userId, data.sessionId.getDeviceId()).toString())
             } else if (plainData.action == PlainDataAction.ACKNOWLEDGE_MESSAGE_RECEIPTS.name) {
@@ -359,6 +339,35 @@ class DecryptMessage : Injector() {
             }
             processDecryptSuccess(data, data.data)
             updateRemoteMessageStatus(data.messageId)
+        }
+    }
+
+    private fun processResendMessage(data: BlazeMessageData, plainData: PlainJsonMessagePayload) {
+        val messages = plainData.messages ?: return
+        val p = participantDao.findParticipantById(data.conversationId, data.userId) ?: return
+        for (id in messages) {
+            val resendMessage = resendMessageDao.findResendMessage(data.userId, data.sessionId, id)
+            if (resendMessage != null) {
+                continue
+            }
+            val needResendMessage = messageDao.findMessageById(id, Session.getAccountId()!!)
+            if (needResendMessage == null || needResendMessage.category == MessageCategory.MESSAGE_RECALL.name) {
+                resendMessageDao.insert(ResendSessionMessage(id, data.userId, data.sessionId, 0, nowInUtc()))
+                continue
+            }
+            val pCreatedAt = ZonedDateTime.parse(p.createdAt)
+            val mCreatedAt = ZonedDateTime.parse(needResendMessage.createdAt)
+            if (pCreatedAt.isAfter(mCreatedAt)) {
+                continue
+            }
+            needResendMessage.id = UUID.randomUUID().toString()
+            jobManager.addJobInBackground(
+                SendMessageJob(
+                    needResendMessage,
+                    ResendData(data.userId, id, data.sessionId), true, messagePriority = PRIORITY_SEND_ATTACHMENT_MESSAGE
+                )
+            )
+            resendMessageDao.insert(ResendSessionMessage(id, data.userId, data.sessionId, 1, nowInUtc()))
         }
     }
 
@@ -728,9 +737,6 @@ class DecryptMessage : Injector() {
                     true
                 }
                 Bugsnag.notify(e)
-            }
-            if (e is DuplicateMessageException) {
-                return
             }
 
             if (resendMessageId != null) {

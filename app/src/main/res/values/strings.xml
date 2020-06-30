@@ -107,6 +107,7 @@
     <string name="follow_system">Follow System</string>
     <string name="nobody">Nobody</string>
     <string name="analyzing">Analyzing…</string>
+    <string name="scam_warning">Warning: Many users reported this account as a scam. Please be careful, especially if it asks you for money</string>
     <!--error-->
     <string name="error_no_connection">No network connection</string>
     <string name="error_connection_timeout">Network connection timeout</string>
@@ -152,7 +153,7 @@
     <string name="error_share">Share error.</string>
     <string name="error_recaptcha_is_invalid">ERROR %1$d: Recaptcha is invalid</string>
     <string name="error_recaptcha_timeout">Recaptcha timeout</string>
-    <string name="error_old_version">ERROR %1$d: Please update Mixin to continue use the service.</string>
+    <string name="error_old_version">ERROR %1$d: Please update Mixin(%2$s) to continue use the service.</string>
     <string name="error_file_chooser">File chooser error</string>
     <string name="error_duration_short">Duration is too short</string>
     <string name="error_too_many_stickers">ERROR %1$d: Too many stickers</string>
@@ -312,7 +313,7 @@
     <string name="contact_other_remove">Remove Contact</string>
     <string name="contact_other_remove_bot">Remove Bot</string>
     <string name="contact_other_report">Report</string>
-    <string name="contact_other_report_warning">Do you want to report and block this contact? your chat with this conversation will also be deleted.</string>
+    <string name="contact_other_report_warning">Do you want to report and block this contact?</string>
     <string name="contact_other_transactions">Transactions</string>
     <string name="contact_less_title">Contact</string>
     <string name="contact_less_invite">Invite to Mixin</string>
@@ -464,7 +465,7 @@
     <string name="setting_unblock">Unblock</string>
     <string name="setting_block_tip">Blocked users can\'t send you messages or add you to groups.</string>
     <string name="setting_conversation_tip">You can restrict who can send message to me.</string>
-    <string name="setting_conversation_group_tip">You can restrict who can add me to group chats.</string>
+    <string name="setting_conversation_group_tip">Who can add me to groups.</string>
     <string name="setting_conversation_everybody">Everybody</string>
     <string name="setting_logs_empty">No logs</string>
     <string name="conversation_status_pic">Photo</string>

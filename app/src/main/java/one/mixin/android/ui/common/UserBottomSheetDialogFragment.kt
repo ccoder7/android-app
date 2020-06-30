@@ -35,11 +35,11 @@ import one.mixin.android.Constants.Mute.MUTE_8_HOURS
 import one.mixin.android.MixinApplication
 import one.mixin.android.R
 import one.mixin.android.RxBus
+import one.mixin.android.api.handleMixinResponse
 import one.mixin.android.api.request.RelationshipAction
 import one.mixin.android.api.request.RelationshipRequest
 import one.mixin.android.event.BotCloseEvent
 import one.mixin.android.event.BotEvent
-import one.mixin.android.event.ExitEvent
 import one.mixin.android.extension.addFragment
 import one.mixin.android.extension.alertDialogBuilder
 import one.mixin.android.extension.dp
@@ -512,9 +512,7 @@ class UserBottomSheetDialogFragment : MixinScrollableBottomSheetDialogFragment()
                     title = getString(R.string.contact_other_report)
                     style = MenuStyle.Danger
                     action = {
-                        requireContext().showConfirmDialog(getString(R.string.contact_other_report)) {
-                            reportUser(u.userId)
-                        }
+                        reportUser(u.userId)
                     }
                 }
             }
@@ -629,19 +627,18 @@ class UserBottomSheetDialogFragment : MixinScrollableBottomSheetDialogFragment()
                 dialog.dismiss()
             }
             .setNegativeButton(getString(R.string.contact_other_report)) { dialog, _ ->
-                val conversationId = generateConversationId(userId, Session.getAccountId()!!)
                 bottomViewModel.updateRelationship(
                     RelationshipRequest(
                         userId,
                         RelationshipAction.BLOCK.name
                     ),
-                    conversationId
+                    true
                 )
                 if (user.isBot()) {
                     RxBus.publish(BotEvent())
                 }
-                RxBus.publish(ExitEvent(conversationId))
                 dialog.dismiss()
+                dismiss()
             }
             .setCancelable(false)
             .show()
@@ -787,8 +784,21 @@ class UserBottomSheetDialogFragment : MixinScrollableBottomSheetDialogFragment()
             .setPositiveButton(R.string.confirm) { dialog, _ ->
                 val account = Session.getAccount()
                 account?.let {
-                    bottomViewModel.mute(it.userId, user.userId, duration.toLong())
-                    context?.toast(getString(R.string.contact_mute_title) + " ${user.fullName} " + choices[whichItem])
+                    lifecycleScope.launch {
+                        handleMixinResponse(
+                            invokeNetwork = {
+                                bottomViewModel.mute(
+                                    duration.toLong(),
+                                    senderId = it.userId,
+                                    recipientId = user.userId
+                                )
+                            },
+                            successBlock = { response ->
+                                bottomViewModel.updateMuteUntil(user.userId, response.data!!.muteUntil)
+                                context?.toast(getString(R.string.contact_mute_title) + " ${user.fullName} " + choices[whichItem])
+                            }
+                        )
+                    }
                 }
                 dialog.dismiss()
             }
@@ -811,8 +821,17 @@ class UserBottomSheetDialogFragment : MixinScrollableBottomSheetDialogFragment()
     private fun unMute() {
         val account = Session.getAccount()
         account?.let {
-            bottomViewModel.mute(it.userId, user.userId, 0)
-            context?.toast(getString(R.string.un_mute) + " ${user.fullName}")
+            lifecycleScope.launch {
+                handleMixinResponse(
+                    invokeNetwork = {
+                        bottomViewModel.mute(0, senderId = it.userId, recipientId = user.userId)
+                    },
+                    successBlock = { response ->
+                        bottomViewModel.updateMuteUntil(user.userId, response.data!!.muteUntil)
+                        context?.toast(getString(R.string.un_mute) + " ${user.fullName}")
+                    }
+                )
+            }
         }
     }
 

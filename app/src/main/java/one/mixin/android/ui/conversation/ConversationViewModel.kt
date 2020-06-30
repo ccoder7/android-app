@@ -683,16 +683,18 @@ internal constructor(
     fun cancel(id: String) = viewModelScope.launch(Dispatchers.IO) {
         jobManager.cancelJobByMixinJobId(id) {
             viewModelScope.launch {
-                conversationRepository.updateMediaStatus(MediaStatus.CANCELED.name, id)
+                conversationRepository.updateMediaStatusSuspend(MediaStatus.CANCELED.name, id)
             }
         }
     }
+
     @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     fun retryUpload(id: String, onError: () -> Unit) {
         doAsync {
             conversationRepository.findMessageById(id)?.let {
                 if (it.isVideo() && it.mediaSize != null && it.mediaSize == 0L) {
                     try {
+                        conversationRepository.updateMediaStatus(MediaStatus.PENDING.name, it.id)
                         jobManager.addJobInBackground(
                             ConvertVideoJob(
                                 it.conversationId, it.userId, Uri.parse(it.mediaUrl),
@@ -719,6 +721,7 @@ internal constructor(
                         onError.invoke()
                     }
                 } else {
+                    conversationRepository.updateMediaStatus(MediaStatus.PENDING.name, it.id)
                     jobManager.addJobInBackground(SendAttachmentMessageJob(it))
                 }
             }
@@ -774,7 +777,7 @@ internal constructor(
         viewModelScope.launch(SINGLE_DB_THREAD) {
             list.forEach { item ->
                 conversationRepository.deleteMessage(
-                    item.messageId, item.mediaUrl
+                    item.messageId, item.mediaUrl, item.mediaStatus == MediaStatus.DONE.name
                 )
                 jobManager.cancelJobByMixinJobId(item.messageId)
                 notificationManager.cancel(item.userId.hashCode())

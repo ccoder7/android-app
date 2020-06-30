@@ -250,7 +250,7 @@ interface MessageDao : BaseDao<Message> {
     @Query("DELETE FROM messages WHERE conversation_id = :conversationId")
     suspend fun deleteMessageByConversationId(conversationId: String)
 
-    @Query("SELECT m.media_url FROM messages m WHERE m.conversation_id = :conversationId AND m.media_url IS NOT NULL")
+    @Query("SELECT m.media_url FROM messages m WHERE m.conversation_id = :conversationId AND m.media_url IS NOT NULL AND m.media_status = 'DONE'")
     suspend fun findAllMediaPathByConversationId(conversationId: String): List<String>
 
     @Query("UPDATE messages SET status = :status WHERE id = :id")
@@ -353,6 +353,9 @@ interface MessageDao : BaseDao<Message> {
     @Query("SELECT * FROM messages WHERE id = :messageId")
     fun findMessageById(messageId: String): Message?
 
+    @Query("SELECT * FROM messages WHERE id = :messageId AND user_id = :userId")
+    fun findMessageById(messageId: String, userId: String): Message?
+
     @Query("SELECT * FROM messages WHERE id = :messageId")
     suspend fun suspendFindMessageById(messageId: String): Message?
 
@@ -388,7 +391,7 @@ interface MessageDao : BaseDao<Message> {
     fun findFailedMessages(conversationId: String, userId: String): List<String>
 
     @Query(
-        "SELECT m.id as messageId, m.media_url as mediaUrl FROM messages m WHERE conversation_id = :conversationId AND category IN (:signalCategory, :plainCategory) ORDER BY created_at ASC"
+        "SELECT m.id as messageId, m.media_url as mediaUrl FROM messages m WHERE conversation_id = :conversationId AND media_status = 'DONE' AND category IN (:signalCategory, :plainCategory) ORDER BY created_at ASC"
     )
     fun getMediaByConversationIdAndCategory(
         conversationId: String,
@@ -468,6 +471,9 @@ interface MessageDao : BaseDao<Message> {
     )
     suspend fun batchQueryMessages(limit: Int, offset: Int, after: Long): List<QueryMessage>
 
-    @Query("SELECT id, conversation_id, name, category, media_url, media_mine_type FROM messages WHERE category IN ('SIGNAL_IMAGE','PLAIN_IMAGE', 'SIGNAL_VIDEO', 'PLAIN_VIDEO', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_AUDIO', 'PLAIN_AUDIO') AND media_status = 'DONE' AND  :end > created_at LIMIT :limit OFFSET :offset")
-    fun findAttachmentMigration(end: String, limit: Int, offset: Long): List<AttachmentMigration>
+    @Query("SELECT id, conversation_id, name, category, media_url, media_mine_type FROM messages WHERE category IN ('SIGNAL_IMAGE','PLAIN_IMAGE', 'SIGNAL_VIDEO', 'PLAIN_VIDEO', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_AUDIO', 'PLAIN_AUDIO') AND media_status = 'DONE' AND rowid <= :rowId LIMIT :limit OFFSET :offset")
+    fun findAttachmentMigration(rowId: Long, limit: Int, offset: Long): List<AttachmentMigration>
+
+    @Query("SELECT rowid FROM messages ORDER BY rowid DESC LIMIT 1")
+    fun getLastMessageRowid(): Long
 }

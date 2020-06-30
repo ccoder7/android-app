@@ -71,28 +71,28 @@ class ConvertVideoJob(
         }
         jobManager.saveJob(this)
         val videoFile: File = MixinApplication.get().getVideoPath().createVideoTemp(conversationId, messageId, "mp4")
-        val result = MediaController.getInstance().convertVideo(
+        val error = MediaController.getInstance().convertVideo(
             video.originalPath, video.bitrate, video.resultWidth, video.resultHeight,
-            video.originalWidth, video.originalHeight, videoFile, video.needChange
+            videoFile, video.needChange, video.duration
         )
         if (isCancelled) {
             removeJob()
             return
-        }
-        if (result) {
-            messageDao.updateMediaMessageUrl(videoFile.toUri().toString(), messageId)
         }
         val message = createVideoMessage(
             messageId, conversationId, senderId, category, null,
             video.fileName, videoFile.toUri().toString(), video.duration, video.resultWidth,
             video.resultHeight, video.thumbnail, "video/mp4",
             videoFile.length(), createdAt, null, null,
-            if (result) MediaStatus.PENDING else MediaStatus.CANCELED,
-            if (result) MessageStatus.SENDING.name else MessageStatus.FAILED.name
+            if (error) MediaStatus.CANCELED else MediaStatus.PENDING,
+            if (error) MessageStatus.FAILED.name else MessageStatus.SENDING.name
         )
+        if (!error) {
+            messageDao.updateMediaMessageUrl(videoFile.toUri().toString(), messageId)
+            jobManager.addJobInBackground(SendAttachmentMessageJob(message))
+        }
 
         removeJob()
-        jobManager.addJobInBackground(SendAttachmentMessageJob(message))
     }
 
     override fun cancel() {

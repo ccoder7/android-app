@@ -101,6 +101,7 @@
     <string name="follow_system">跟随系统</string>
     <string name="nobody">没有人</string>
     <string name="analyzing">解析中…</string>
+    <string name="scam_warning">警告：此账号被大量用户举报，请谨防网络诈骗，注意个人财产安全</string>
     <!--error-->
     <string name="error_no_connection">无网络连接</string>
     <string name="error_connection_timeout">网络连接超时</string>
@@ -112,7 +113,7 @@
     <string name="error_forbidden">禁止访问</string>
     <string name="error_not_found">错误 %1$d：没有找到相应的信息</string>
     <string name="error_not_found_message">没有找到相应的消息</string>
-    <string name="error_too_many_request">错误 %1$d：请求太快啦</string>
+    <string name="error_too_many_request">错误 %1$d：请求过于频繁</string>
     <string name="error_authentication">错误 %1$d：请重新登录</string>
     <string name="can_not_recognize">无法识别二维码</string>
     <string name="error_no_camera">没有相机</string>
@@ -144,7 +145,7 @@
     <string name="error_share">分享出错</string>
     <string name="error_recaptcha_is_invalid">错误 %1$d：验证失败</string>
     <string name="error_recaptcha_timeout">验证超时</string>
-    <string name="error_old_version">错误 %1$d：请更新 Mixin 至最新版。</string>
+    <string name="error_old_version">错误 %1$d：请更新 Mixin(%2$s) 至最新版。</string>
     <string name="error_file_chooser">文件选择错误</string>
     <string name="error_duration_short">时间太短</string>
     <string name="error_too_many_stickers">错误 %1$d：贴纸数已达上限</string>
@@ -296,7 +297,7 @@
     <string name="contact_other_remove">删除联系人</string>
     <string name="contact_other_remove_bot">删除机器人</string>
     <string name="contact_other_report">举报</string>
-    <string name="contact_other_report_warning">确定要举报这个联系人？举报后你们的对话会被立即删除。</string>
+    <string name="contact_other_report_warning">确定要举报这个联系人？</string>
     <string name="contact_other_transactions">转账记录</string>
     <string name="contact_less_title">联系人</string>
     <string name="contact_less_invite">邀请至 Mixin</string>
@@ -449,7 +450,7 @@
     <string name="setting_unblock">解除屏蔽</string>
     <string name="setting_block_tip">被屏蔽的用户不能给你发送消息或者邀请你加入群聊</string>
     <string name="setting_conversation_tip">你可以限制谁给你发消息。</string>
-    <string name="setting_conversation_group_tip">你可以限制谁邀请你加入群聊。</string>
+    <string name="setting_conversation_group_tip">谁能加我进入群组。</string>
     <string name="setting_conversation_everybody">任何人</string>
     <string name="setting_logs_empty">没有日志</string>
     <string name="conversation_status_pic">照片</string>

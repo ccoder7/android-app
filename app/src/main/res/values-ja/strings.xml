@@ -146,7 +146,7 @@
     <string name="error_share">シェアエラー</string>
     <string name="error_recaptcha_is_invalid">エラー %1$d: Recaptchaが無効です</string>
     <string name="error_recaptcha_timeout">Recaptchaがタイムアウトしました</string>
-    <string name="error_old_version">エラー %1$d: このサービスを引き続き使用するには、Mixinをアップデートしてください。</string>
+    <string name="error_old_version">エラー %1$d: このサービスを引き続き使用するには、Mixin(%2$s)をアップデートしてください。</string>
     <string name="error_file_chooser">ファイル選択エラー</string>
     <string name="error_duration_short">期間が短すぎます</string>
     <string name="error_too_many_stickers">エラー %1$d: スタンプが多すぎます</string>
@@ -296,7 +296,7 @@
     <string name="contact_other_remove">連絡先を削除する</string>
     <string name="contact_other_remove_bot">Botを削除する</string>
     <string name="contact_other_report">報告する</string>
-    <string name="contact_other_report_warning">報告してブロックしますか? この会話も同時に削除されます</string>
+    <string name="contact_other_report_warning">報告してブロックしますか?</string>
     <string name="contact_other_transactions">トランザクション</string>
     <string name="contact_less_title">連絡先</string>
     <string name="contact_less_invite">Mixinに招待する</string>
@@ -437,6 +437,7 @@
     <string name="setting_conversation_tip">あなたにメッセージを送れる人を制限することができます。</string>
     <string name="setting_conversation_group_tip">あなたをグループに追加できる人を制限することができます。</string>
     <string name="setting_conversation_everybody">全員</string>
+    <string name="setting_logs_empty">No logs</string>
     <string name="conversation_status_pic">画像</string>
     <string name="conversation_status_video">動画</string>
     <string name="conversation_status_file">ファイル</string>

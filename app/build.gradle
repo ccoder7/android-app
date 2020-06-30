@@ -1,6 +1,6 @@
 def versionMajor = 0
 def versionMinor = 25
-def versionPatch = 2
+def versionPatch = 8
 def versionBuild = 0
 
 apply plugin: 'com.android.application'
@@ -136,7 +136,6 @@ dependencies {
     implementation "androidx.browser:browser:${supportLibVersion}"
     implementation "androidx.constraintlayout:constraintlayout:${constraintLayoutVersion}"
     implementation "androidx.core:core-ktx:${ktxVersion}"
-    implementation "androidx.collection:collection:${collectionx}"
     implementation "androidx.collection:collection-ktx:${collectionx}"
     implementation "androidx.preference:preference-ktx:${preference_version}"
     implementation "androidx.viewpager2:viewpager2:${viewpagerVersion}"
@@ -193,10 +192,10 @@ dependencies {
 
     implementation "com.google.code.gson:gson:${gsonVersion}"
     implementation "com.google.firebase:firebase-analytics:${firebaseVersion}"
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.1'
+    implementation 'com.google.firebase:firebase-crashlytics:17.1.0'
     implementation "com.google.firebase:firebase-messaging:${firebaseMessageVersion}"
     implementation "com.google.firebase:firebase-dynamic-links:${firebaseDylinkVersion}"
-    implementation "com.google.firebase:firebase-ml-vision:${firebaseMLVersion}"
+    implementation "com.google.mlkit:barcode-scanning:${mlkitBarcodeVersion}"
     implementation("com.google.firebase:firebase-perf:${perfVersion}") {
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
@@ -260,8 +259,6 @@ dependencies {
     implementation "io.noties.markwon:ext-tasklist:${markwonVersion}"
     implementation "com.github.SandroMachado:BitcoinPaymentURI:${bitcoinPaymentURI}"
     implementation "com.caverock:androidsvg-aar:${svgVersion}"
-
-//    implementation "org.webrtc:google-webrtc:${webrtcVersion}"
 }
 
 task ktlint(type: JavaExec, group: "verification") {
