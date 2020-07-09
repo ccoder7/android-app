@@ -29,6 +29,7 @@ import one.mixin.android.R
 import one.mixin.android.extension.capture
 import one.mixin.android.extension.generateQRCode
 import one.mixin.android.extension.getQRCodePath
+import one.mixin.android.extension.isNightMode
 import one.mixin.android.extension.isQRCodeFileExists
 import one.mixin.android.extension.openPermissionSetting
 import one.mixin.android.extension.saveQRCode
@@ -83,7 +84,6 @@ class QrBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
                         contentView.badge_view.badge.setImageResource(R.drawable.ic_contacts_receive_blue)
                         contentView.badge_view.pos = END_BOTTOM
                     }
-
                     val name = getName(user)
                     if (requireContext().isQRCodeFileExists(name)) {
                         contentView.qr.setImageBitmap(BitmapFactory.decodeFile(requireContext().getQRCodePath(name).absolutePath))
@@ -96,7 +96,7 @@ class QrBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
                                     TYPE_RECEIVE_QR -> "$TRANSFER/${user.userId}"
                                     else -> ""
                                 }
-                                val b = code.generateQRCode(contentView.qr.width)
+                                val b = code.generateQRCode(contentView.qr.width, requireContext().isNightMode())
                                 if (b != null) {
                                     b.saveQRCode(requireContext(), name)
                                     e.onNext(b)

@@ -24,6 +24,7 @@ import one.mixin.android.extension.capture
 import one.mixin.android.extension.dpToPx
 import one.mixin.android.extension.generateQRCode
 import one.mixin.android.extension.getQRCodePath
+import one.mixin.android.extension.isNightMode
 import one.mixin.android.extension.isQRCodeFileExists
 import one.mixin.android.extension.loadImage
 import one.mixin.android.extension.openPermissionSetting
@@ -118,7 +119,7 @@ class DepositQrBottomFragment : MixinBottomSheetDialogFragment() {
                         TYPE_TAG -> asset.tag
                         else -> asset.destination
                     }
-                    val b = code!!.generateQRCode(getSize(requireContext()))
+                    val b = code!!.generateQRCode(getSize(requireContext()), requireContext().isNightMode())
                     if (b != null) {
                         b.saveQRCode(requireContext(), name)
                         e.onNext(b)

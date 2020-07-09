@@ -321,13 +321,25 @@ fun Context.getImageCachePath(): File {
 
 fun Context.isQRCodeFileExists(name: String): Boolean {
     val root = getBestAvailableCacheRoot()
-    val file = File("$root${File.separator}$name.png")
+    val file = File(
+        "$root${File.separator}$name${if (isNightMode()) {
+            "_night"
+        } else {
+            ""
+        }}.png"
+    )
     return file.exists() && file.length() > 0
 }
 
 fun Context.getQRCodePath(name: String): File {
     val root = getBestAvailableCacheRoot()
-    val file = File("$root${File.separator}$name.png")
+    val file = File(
+        "$root${File.separator}$name${if (isNightMode()) {
+            "_night"
+        } else {
+            ""
+        }}.png"
+    )
     if (!file.exists()) {
         file.createNewFile()
     }

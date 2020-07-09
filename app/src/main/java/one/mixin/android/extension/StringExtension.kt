@@ -41,7 +41,7 @@ import java.util.regex.Pattern
 import kotlin.collections.set
 import kotlin.math.abs
 
-fun String.generateQRCode(size: Int, padding: Float = 18.dp.toFloat()): Bitmap? {
+fun String.generateQRCode(size: Int, isNight: Boolean, padding: Float = 20.dp.toFloat()): Bitmap? {
     val result: QRCode
     try {
         val hints = HashMap<EncodeHintType, Any>()
@@ -54,7 +54,7 @@ fun String.generateQRCode(size: Int, padding: Float = 18.dp.toFloat()): Bitmap? 
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.BLACK
+        Color.BLACK
     }
     val patternSize = 7
     val input = result.matrix
@@ -62,6 +62,12 @@ fun String.generateQRCode(size: Int, padding: Float = 18.dp.toFloat()): Bitmap? 
     val inputHeight = input.height
     val itemSize = (size - padding * 2) / inputWidth
     val circleRadius = itemSize / 2
+    if (isNight) {
+        paint.color = Color.WHITE
+        paint.style = Paint.Style.FILL
+        canvas.drawRect(RectF(padding / 2f, padding / 2f, size - padding / 2f, size - padding / 2), paint)
+        paint.color = Color.BLACK
+    }
     for (y in 0 until inputHeight) {
         for (x in 0 until inputWidth) {
             if (input[x, y].toInt() == 1) {
