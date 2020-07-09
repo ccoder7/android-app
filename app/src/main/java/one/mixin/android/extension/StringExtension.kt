@@ -40,9 +40,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.collections.set
 import kotlin.math.abs
-import kotlin.math.min
 
-fun String.generateQRCode(size: Int): Bitmap? {
+fun String.generateQRCode(size: Int, padding: Float = 18.dp.toFloat()): Bitmap? {
     val result: QRCode
     try {
         val hints = HashMap<EncodeHintType, Any>()
@@ -57,9 +56,7 @@ fun String.generateQRCode(size: Int): Bitmap? {
     val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.BLACK
     }
-
     val patternSize = 7
-    val padding = 18.dp.toFloat()
     val input = result.matrix
     val inputWidth = input.width
     val inputHeight = input.height
@@ -83,11 +80,11 @@ fun String.generateQRCode(size: Int): Bitmap? {
         }
     }
 
-    val strokeWidth = itemSize
-    paint.strokeWidth = strokeWidth
-    drawRoundRect(canvas, padding + strokeWidth / 2, padding + itemSize / 2, (itemSize * patternSize - strokeWidth), paint)
-    drawRoundRect(canvas, size - padding - (itemSize * patternSize - strokeWidth), padding + strokeWidth / 2, (itemSize * patternSize - strokeWidth), paint)
-    drawRoundRect(canvas, padding + strokeWidth / 2, size - padding - (itemSize * patternSize - itemSize), (itemSize * patternSize - strokeWidth), paint)
+    paint.strokeWidth = itemSize
+    val positionSize = itemSize * (patternSize - 1)
+    drawRoundRect(canvas, padding + itemSize / 2, padding + itemSize / 2, positionSize, paint)
+    drawRoundRect(canvas, size - padding - (itemSize * patternSize - itemSize), padding + itemSize / 2, positionSize, paint)
+    drawRoundRect(canvas, padding + itemSize / 2, size - padding - (itemSize * patternSize - itemSize), positionSize, paint)
     return bitmap
 }
 
@@ -95,7 +92,7 @@ private fun drawRoundRect(canvas: Canvas, left: Float, top: Float, size: Float, 
     paint.style = Paint.Style.STROKE
     canvas.drawRoundRect(RectF(left, top, left + size, top + size), size / 4, size / 4, paint)
     paint.style = Paint.Style.FILL
-    canvas.drawRect(RectF(left + size * 0.3f, top + size * 0.3f, left + size * 0.7f, top + size * 0.7f), paint)
+    canvas.drawRoundRect(RectF(left + size * 2 / 7, top + size * 2 / 7, left + size * 5 / 7, top + size * 5 / 7), 2.dp.toFloat(), 2.dp.toFloat(), paint)
 }
 
 fun String.getEpochNano(): Long {
