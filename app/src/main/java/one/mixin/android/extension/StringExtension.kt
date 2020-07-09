@@ -417,6 +417,10 @@ fun String?.joinWhiteSpace(): String {
     return joinWithCharacter(' ')
 }
 
+fun String.replaceQuotationMark(): String {
+    return this.replace("\"", "")
+}
+
 fun String.joinStar() = joinWithCharacter('*')
 
 fun String.joinWithCharacter(char: Char): String {

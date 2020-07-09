@@ -19,6 +19,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.MotionEvent
 import android.view.TextureView
 import android.view.View
 import android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
@@ -201,6 +202,12 @@ class MediaPagerActivity : BaseActivity(), DismissFrameLayout.OnDismissListener,
         processor.close()
         SensorOrientationChangeNotifier.reset()
         view_pager?.unregisterOnPageChangeCallback(onPageChangeCallback)
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        val enable = ev?.pointerCount ?: 0 < 2
+        view_pager?.isUserInputEnabled = enable
+        return super.dispatchTouchEvent(ev)
     }
 
     override fun onOrientationChange(oldOrientation: Int, newOrientation: Int) {

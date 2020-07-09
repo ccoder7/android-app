@@ -138,6 +138,7 @@ object Constants {
     const val INTERVAL_48_HOURS: Long = 1000 * 60 * 60 * 48
     const val INTERVAL_10_MINS: Long = 1000 * 60 * 10
     const val DELAY_SECOND = 60
+    const val ALLOW_INTERVAL: Long = 5 * 60 * 1000
 
     const val SAFETY_NET_INTERVAL_KEY = "safety_net_interval_key"
 
@@ -166,4 +167,6 @@ object Constants {
     const val RECENT_USED_BOTS_MAX_COUNT = 12
 
     const val PIN_ERROR_MAX = 5
+
+    const val BIG_IMAGE_SIZE = 5 * 1024 * 1024
 }
