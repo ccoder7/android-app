@@ -19,3 +19,8 @@
 # androidx paging
 -keep class androidx.paging.PagedListAdapter.** { *; }
 -keep class androidx.paging.AsyncPagedListDiffer.** { *; }
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
