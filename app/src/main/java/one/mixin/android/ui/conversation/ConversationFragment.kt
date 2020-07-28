@@ -2549,6 +2549,7 @@ class ConversationFragment :
     }
 
     private fun changeToSpeaker() {
+        if (audioManager.mode == AudioManager.MODE_NORMAL) return
         AudioPlayer.switchAudioStreamType(true)
         audioManager.isSpeakerphoneOn = true
         audioManager.mode = AudioManager.MODE_NORMAL
@@ -2559,6 +2560,7 @@ class ConversationFragment :
     }
 
     private fun changeToHeadset() {
+        if (audioManager.mode == AudioManager.STREAM_MUSIC) return
         AudioPlayer.switchAudioStreamType(true)
         audioManager.isSpeakerphoneOn = false
         audioManager.isBluetoothScoOn = false
@@ -2570,6 +2572,7 @@ class ConversationFragment :
     }
 
     private fun changeToReceiver() {
+        if (audioManager.mode == AudioManager.MODE_IN_COMMUNICATION) return
         AudioPlayer.switchAudioStreamType(false)
         audioManager.isSpeakerphoneOn = false
         audioManager.isBluetoothScoOn = false
